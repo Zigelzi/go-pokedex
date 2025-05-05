@@ -8,16 +8,21 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*config) error
 }
 
-func commandExit() error {
+type config struct {
+	Next     string
+	Previous string
+}
+
+func commandExit(config *config) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp() error {
+func commandHelp(config *config) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage")
 	fmt.Println()
@@ -27,6 +32,17 @@ func commandHelp() error {
 		fmt.Printf("%s: %s\n", command.name, command.description)
 	}
 
+	return nil
+}
+
+func commandMap(config *config) error {
+	locationAreas, err := getLocationAreas(config)
+	if err != nil {
+		return err
+	}
+	for _, locationArea := range locationAreas {
+		fmt.Println(locationArea.Name)
+	}
 	return nil
 }
 
@@ -41,6 +57,11 @@ func getCommands() map[string]cliCommand {
 			name:        "exit",
 			description: "Exit the Pokedex",
 			callback:    commandExit,
+		},
+		"map": {
+			name:        "map",
+			description: "Display 20 location areas at once. Use multiple times to view more areas",
+			callback:    commandMap,
 		},
 	}
 }
