@@ -19,11 +19,15 @@ type locationArea struct {
 	Url  string `json:"url"`
 }
 
-func getLocationAreas(config *config) ([]locationArea, error) {
-	if config.Next == "" {
-		config.Next = "https://pokeapi.co/api/v2/location-area?offset=0&limit=20"
+func getLocationAreas(config *config, isMovingForwards bool) ([]locationArea, error) {
+	endpoint := ""
+	if isMovingForwards {
+		endpoint = config.Next
+	} else {
+		endpoint = config.Previous
 	}
-	res, err := http.Get(config.Next)
+
+	res, err := http.Get(endpoint)
 	if err != nil {
 		return []locationArea{}, fmt.Errorf("unable to get locations: %w", err)
 	}
