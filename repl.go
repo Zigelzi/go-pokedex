@@ -5,14 +5,18 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/Zigelzi/go-pokedex/internal/pokeapi"
 )
 
-func startREPL() {
+type config struct {
+	pokeApiClient   pokeapi.Client
+	nextPageURL     *string
+	previousPageURL *string
+}
+
+func startREPL(config *config) {
 	scanner := bufio.NewScanner(os.Stdin)
-	config := config{
-		Next:     "",
-		Previous: "",
-	}
 	for {
 		fmt.Print("Pokedex > ")
 		scanner.Scan()
@@ -30,7 +34,7 @@ func startREPL() {
 			continue
 		}
 
-		err := command.callback(&config)
+		err := command.callback(config)
 		if err != nil {
 			fmt.Println(err)
 		}
