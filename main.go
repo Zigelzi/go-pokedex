@@ -9,7 +9,7 @@ import (
 func main() {
 	pokeClient := pokeapi.NewClient(5 * time.Second)
 	config := &config{
-		pokeApiClient: pokeClient,
+		pokeApiClient: &pokeClient,
 	}
 	startREPL(config)
 }

@@ -16,11 +16,13 @@ type cacheEntry struct {
 	value     []byte
 }
 
-func NewCache(lifetime time.Duration) Cache {
-	return Cache{
+func NewCache(lifetime time.Duration) *Cache {
+	newCache := Cache{
 		Entry:    make(map[string]cacheEntry),
 		lifetime: lifetime,
 	}
+	go newCache.readLoop()
+	return &newCache
 }
 
 func (c *Cache) Add(key string, val []byte) {
@@ -41,4 +43,17 @@ func (c *Cache) Get(key string) ([]byte, bool) {
 		return []byte{}, false
 	}
 	return entry.value, true
+}
+
+func (c *Cache) readLoop() {
+	ticker := time.NewTicker(c.lifetime)
+	for {
+		currentTime := <-ticker.C
+		for key, entry := range c.Entry {
+			age := currentTime.Sub(entry.createdAt)
+			if age >= c.lifetime {
+				delete(c.Entry, key)
+			}
+		}
+	}
 }

@@ -13,11 +13,11 @@ type Client struct {
 }
 
 func NewClient(timeout time.Duration) Client {
-	const cacheInterval = 5 * time.Second
+	const cacheLifetime = 5 * time.Second
 	return Client{
 		httpClient: http.Client{
 			Timeout: timeout,
 		},
-		cache: pokecache.NewCache(cacheInterval),
+		cache: *pokecache.NewCache(cacheLifetime),
 	}
 }

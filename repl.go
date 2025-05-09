@@ -10,7 +10,7 @@ import (
 )
 
 type config struct {
-	pokeApiClient   pokeapi.Client
+	pokeApiClient   *pokeapi.Client
 	nextPageURL     *string
 	previousPageURL *string
 }
