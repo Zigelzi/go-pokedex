@@ -16,6 +16,8 @@ type config struct {
 }
 
 func startREPL(config *config) {
+	fmt.Println("Welcome to Pokedex!")
+	fmt.Println("Type the command you want to do or write 'help' to view available commands")
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("Pokedex > ")
