@@ -6,7 +6,7 @@ import (
 )
 
 func TestAdd(t *testing.T) {
-	const interval = 5 * time.Second
+	const testLifetime = 5 * time.Second
 	type testCase struct {
 		name        string
 		key         string
@@ -28,7 +28,7 @@ func TestAdd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			cache := NewCache(interval)
+			cache := NewCache(testLifetime)
 			cache.Add(tc.key, tc.expectedVal)
 			actualVal, ok := cache.Get(tc.key)
 			if !ok {
@@ -44,7 +44,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	const interval = 5 * time.Millisecond
+	const testLifetime = 5 * time.Millisecond
 
 	type testCase struct {
 		name            string
@@ -70,10 +70,57 @@ func TestGet(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			cache := NewCache(interval)
+			cache := NewCache(testLifetime)
 			if tc.expectedToExist {
 				cache.Add(tc.key, tc.expectedValue)
 			}
+			actualVal, ok := cache.Get(tc.key)
+
+			if ok != tc.expectedToExist {
+				t.Errorf("existance of a key doesn't match: got [%t] want [%t]", ok, tc.expectedToExist)
+				return
+			}
+			if string(actualVal) != string(tc.expectedValue) {
+				t.Errorf("values don't match: got [%v] want %v", actualVal, tc.expectedValue)
+				return
+			}
+		})
+	}
+}
+
+func TestReadLoop(t *testing.T) {
+	const testLifetime = 5 * time.Millisecond
+
+	type testCase struct {
+		name            string
+		key             string
+		waitDuration    time.Duration
+		expectedToExist bool
+		expectedValue   []byte
+	}
+
+	cases := []testCase{
+		{
+			name:            "returns cache hit for key with 0 ms age",
+			key:             "https://pokeapi.co/api/v2/location-areas",
+			waitDuration:    0,
+			expectedToExist: true,
+			expectedValue:   []byte("pokeapi-response"),
+		},
+		{
+			name:            "returns cache miss for key with 10 ms age",
+			key:             "https://pokeapi.co/api/v2/location-areas",
+			waitDuration:    10,
+			expectedToExist: false,
+			expectedValue:   []byte{},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			cache := NewCache(testLifetime)
+			cache.Add(tc.key, tc.expectedValue)
+			time.Sleep(tc.waitDuration * time.Millisecond)
 			actualVal, ok := cache.Get(tc.key)
 
 			if ok != tc.expectedToExist {
