@@ -21,7 +21,7 @@ func NewCache(lifetime time.Duration) *Cache {
 		Entry:    make(map[string]cacheEntry),
 		lifetime: lifetime,
 	}
-	go newCache.readLoop()
+	go newCache.reapLoop()
 	return &newCache
 }
 
@@ -40,12 +40,12 @@ func (c *Cache) Get(key string) ([]byte, bool) {
 	defer c.mu.RUnlock()
 	entry, ok := c.Entry[key]
 	if !ok {
-		return []byte{}, false
+		return nil, false
 	}
 	return entry.value, true
 }
 
-func (c *Cache) readLoop() {
+func (c *Cache) reapLoop() {
 	ticker := time.NewTicker(c.lifetime)
 	for {
 		currentTime := <-ticker.C

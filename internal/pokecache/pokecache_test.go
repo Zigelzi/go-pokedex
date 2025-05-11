@@ -35,6 +35,12 @@ func TestAdd(t *testing.T) {
 				t.Errorf("expected to find a key [%s]: got [%t] want [%t]", tc.key, ok, !ok)
 				return
 			}
+
+			if actualVal == nil {
+				t.Errorf("expected cache to contain the value for key [%s]: got [nil] want [%v]", tc.key, tc.expectedVal)
+				return
+			}
+
 			if string(actualVal) != string(tc.expectedVal) {
 				t.Errorf("returned values don't match: got [%v] want [%v]", actualVal, tc.expectedVal)
 				return
@@ -55,16 +61,16 @@ func TestGet(t *testing.T) {
 
 	cases := []testCase{
 		{
-			name:            "returns existing value",
+			name:            "returns cache hit for existing key",
 			key:             "https://pokeapi.co/api/v2/location-areas",
 			expectedToExist: true,
 			expectedValue:   []byte("pokeapi-response"),
 		},
 		{
-			name:            "returns feedback about key that doesn't exist and empty value",
+			name:            "returns cache miss for non-existing key",
 			key:             "https://pokeapi.co/api/v2/location-areas",
 			expectedToExist: false,
-			expectedValue:   []byte{},
+			expectedValue:   nil,
 		},
 	}
 
@@ -77,18 +83,24 @@ func TestGet(t *testing.T) {
 			actualVal, ok := cache.Get(tc.key)
 
 			if ok != tc.expectedToExist {
-				t.Errorf("existance of a key doesn't match: got [%t] want [%t]", ok, tc.expectedToExist)
+				t.Errorf("existence of a key doesn't match: got [%t] want [%t]", ok, tc.expectedToExist)
 				return
 			}
-			if string(actualVal) != string(tc.expectedValue) {
-				t.Errorf("values don't match: got [%v] want %v", actualVal, tc.expectedValue)
-				return
+			if tc.expectedToExist {
+				if string(actualVal) != string(tc.expectedValue) {
+					t.Errorf("values don't match: got [%v] want %v", actualVal, tc.expectedValue)
+					return
+				}
+			} else {
+				if actualVal != nil {
+					t.Errorf("values don't match for cache miss: got [%v] want [nil]", actualVal)
+				}
 			}
 		})
 	}
 }
 
-func TestReadLoop(t *testing.T) {
+func TestReapLoop(t *testing.T) {
 	const testLifetime = 5 * time.Millisecond
 
 	type testCase struct {
@@ -101,18 +113,25 @@ func TestReadLoop(t *testing.T) {
 
 	cases := []testCase{
 		{
-			name:            "returns cache hit for key with 0 ms age",
+			name:            "returns cache hit for key which age is less than cache lifetime",
 			key:             "https://pokeapi.co/api/v2/location-areas",
 			waitDuration:    0,
 			expectedToExist: true,
 			expectedValue:   []byte("pokeapi-response"),
 		},
 		{
-			name:            "returns cache miss for key with 10 ms age",
+			name:            "returns cache hit for key which age is equal to cache lifetime",
+			key:             "https://pokeapi.co/api/v2/location-areas",
+			waitDuration:    5,
+			expectedToExist: true,
+			expectedValue:   []byte("pokeapi-response"),
+		},
+		{
+			name:            "returns cache miss for key which age is greated than cache lifetime",
 			key:             "https://pokeapi.co/api/v2/location-areas",
 			waitDuration:    10,
 			expectedToExist: false,
-			expectedValue:   []byte{},
+			expectedValue:   nil,
 		},
 	}
 
@@ -124,12 +143,18 @@ func TestReadLoop(t *testing.T) {
 			actualVal, ok := cache.Get(tc.key)
 
 			if ok != tc.expectedToExist {
-				t.Errorf("existance of a key doesn't match: got [%t] want [%t]", ok, tc.expectedToExist)
+				t.Errorf("existence of a key doesn't match: got [%t] want [%t]", ok, tc.expectedToExist)
 				return
 			}
-			if string(actualVal) != string(tc.expectedValue) {
-				t.Errorf("values don't match: got [%v] want %v", actualVal, tc.expectedValue)
-				return
+			if tc.expectedToExist {
+				if string(actualVal) != string(tc.expectedValue) {
+					t.Errorf("values don't match: got [%v] want %v", actualVal, tc.expectedValue)
+					return
+				}
+			} else {
+				if actualVal != nil {
+					t.Errorf("values don't match for cache miss: got [%v] want [nil]", actualVal)
+				}
 			}
 		})
 	}
