@@ -28,6 +28,9 @@ func startREPL(config *config) {
 			continue
 		}
 		commandName := words[0]
+		commandArgument := getCommandArgument(words)
+
+		fmt.Println(commandArgument)
 
 		commands := getCommands()
 		command, ok := commands[commandName]
@@ -53,4 +56,14 @@ func cleanInput(text string) []string {
 		cleanedWords[i] = lowerCaseWord
 	}
 	return cleanedWords
+}
+
+func getCommandArgument(input []string) string {
+	if input == nil {
+		return ""
+	}
+	if len(input) < 2 {
+		return ""
+	}
+	return input[1]
 }
