@@ -7,7 +7,7 @@ import (
 
 type Cache struct {
 	mu       sync.RWMutex
-	Entry    map[string]cacheEntry
+	entries  map[string]cacheEntry
 	lifetime time.Duration
 }
 
@@ -18,7 +18,7 @@ type cacheEntry struct {
 
 func NewCache(lifetime time.Duration) *Cache {
 	newCache := Cache{
-		Entry:    make(map[string]cacheEntry),
+		entries:  make(map[string]cacheEntry),
 		lifetime: lifetime,
 	}
 	go newCache.reapLoop()
@@ -32,13 +32,14 @@ func (c *Cache) Add(key string, val []byte) {
 		createdAt: time.Now(),
 		value:     val,
 	}
-	c.Entry[key] = entry
+	c.entries[key] = entry
 }
 
 func (c *Cache) Get(key string) ([]byte, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	entry, ok := c.Entry[key]
+
+	entry, ok := c.entries[key]
 	if !ok {
 		return nil, false
 	}
@@ -49,11 +50,18 @@ func (c *Cache) reapLoop() {
 	ticker := time.NewTicker(c.lifetime)
 	for {
 		currentTime := <-ticker.C
-		for key, entry := range c.Entry {
-			age := currentTime.Sub(entry.createdAt)
-			if age >= c.lifetime {
-				delete(c.Entry, key)
-			}
+		c.reap(currentTime)
+	}
+}
+
+func (c *Cache) reap(currentTime time.Time) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	for key, entry := range c.entries {
+		age := currentTime.Sub(entry.createdAt)
+		if age >= c.lifetime {
+			delete(c.entries, key)
 		}
 	}
 }

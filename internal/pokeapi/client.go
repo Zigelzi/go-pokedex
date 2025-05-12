@@ -12,8 +12,7 @@ type Client struct {
 	cache      pokecache.Cache
 }
 
-func NewClient(timeout time.Duration) Client {
-	const cacheLifetime = 10 * time.Second
+func NewClient(timeout, cacheLifetime time.Duration) Client {
 	return Client{
 		httpClient: http.Client{
 			Timeout: timeout,
