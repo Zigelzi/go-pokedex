@@ -8,60 +8,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
-}
-
-func commandExit(config *config) error {
-	fmt.Println("Closing the Pokedex... Goodbye!")
-	os.Exit(0)
-	return nil
-}
-
-func commandHelp(config *config) error {
-	fmt.Println("Welcome to the Pokedex!")
-	fmt.Println("Usage")
-	fmt.Println()
-
-	commands := getCommands()
-	for _, command := range commands {
-		fmt.Printf("%s: %s\n", command.name, command.description)
-	}
-
-	return nil
-}
-
-func commandMapForward(config *config) error {
-	locationAreaResp, err := config.pokeApiClient.ListLocationAreas(config.nextPageURL)
-	if err != nil {
-		return err
-	}
-
-	config.nextPageURL = locationAreaResp.Next
-	config.previousPageURL = locationAreaResp.Previous
-
-	for _, locationArea := range locationAreaResp.Results {
-		fmt.Println(locationArea.Name)
-	}
-	return nil
-}
-
-func commandMapBack(config *config) error {
-	if config.previousPageURL == nil {
-		fmt.Println("Can't move back. You are on first page!")
-		return fmt.Errorf("unable to move back, config.PreviousPageURL: %v", config.previousPageURL)
-	}
-	locationAreaResp, err := config.pokeApiClient.ListLocationAreas(config.previousPageURL)
-	if err != nil {
-		return err
-	}
-
-	config.nextPageURL = locationAreaResp.Next
-	config.previousPageURL = locationAreaResp.Previous
-
-	for _, locationArea := range locationAreaResp.Results {
-		fmt.Println(locationArea.Name)
-	}
-	return nil
+	callback    func(*config, string) error
 }
 
 func getCommands() map[string]cliCommand {
@@ -86,5 +33,79 @@ func getCommands() map[string]cliCommand {
 			description: "Display previous 20 locations areas. Use multiple times to view more areas",
 			callback:    commandMapBack,
 		},
+		"explore": {
+			name:        "explore {location area name}",
+			description: "Explore the Pokemons in the location area (e.g 'canalave-city-area')",
+			callback:    commandExplore,
+		},
 	}
+}
+
+func commandExit(config *config, argument string) error {
+	fmt.Println("Closing the Pokedex... Goodbye!")
+	os.Exit(0)
+	return nil
+}
+
+func commandHelp(config *config, argument string) error {
+	fmt.Println("Welcome to the Pokedex!")
+	fmt.Println("Usage")
+	fmt.Println()
+
+	commands := getCommands()
+	for _, command := range commands {
+		fmt.Printf("%s: %s\n", command.name, command.description)
+	}
+
+	return nil
+}
+
+func commandMapForward(config *config, argument string) error {
+	locationAreaResp, err := config.pokeApiClient.ListLocationAreas(config.nextPageURL)
+	if err != nil {
+		return err
+	}
+
+	config.nextPageURL = locationAreaResp.Next
+	config.previousPageURL = locationAreaResp.Previous
+
+	for _, locationArea := range locationAreaResp.Results {
+		fmt.Println(locationArea.Name)
+	}
+	return nil
+}
+
+func commandMapBack(config *config, argument string) error {
+	if config.previousPageURL == nil {
+		fmt.Println("Can't move back. You are on first page!")
+		return fmt.Errorf("unable to move back, config.PreviousPageURL: %v", config.previousPageURL)
+	}
+	locationAreaResp, err := config.pokeApiClient.ListLocationAreas(config.previousPageURL)
+	if err != nil {
+		return err
+	}
+
+	config.nextPageURL = locationAreaResp.Next
+	config.previousPageURL = locationAreaResp.Previous
+
+	for _, locationArea := range locationAreaResp.Results {
+		fmt.Println(locationArea.Name)
+	}
+	return nil
+}
+
+func commandExplore(config *config, argument string) error {
+	if argument == "" {
+		return fmt.Errorf("location area name is missing")
+	}
+	locationAreaResp, err := config.pokeApiClient.GetLocationAreaDetails(argument)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Pokemons in %s:\n", locationAreaResp.Name)
+	for i, pokemonEncounter := range locationAreaResp.PokemonEncounters {
+		fmt.Printf("%d. %s\n", i+1, pokemonEncounter.Pokemon.Name)
+	}
+
+	return nil
 }

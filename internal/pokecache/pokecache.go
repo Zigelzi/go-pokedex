@@ -1,14 +1,16 @@
 package pokecache
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
 
 type Cache struct {
-	mu       sync.RWMutex
-	entries  map[string]cacheEntry
-	lifetime time.Duration
+	mu         sync.RWMutex
+	entries    map[string]cacheEntry
+	lifetime   time.Duration
+	totalBytes int
 }
 
 type cacheEntry struct {
@@ -17,12 +19,12 @@ type cacheEntry struct {
 }
 
 func NewCache(lifetime time.Duration) *Cache {
-	newCache := Cache{
+	newCache := &Cache{
 		entries:  make(map[string]cacheEntry),
 		lifetime: lifetime,
 	}
 	go newCache.reapLoop()
-	return &newCache
+	return newCache
 }
 
 func (c *Cache) Add(key string, val []byte) {
@@ -33,6 +35,8 @@ func (c *Cache) Add(key string, val []byte) {
 		value:     val,
 	}
 	c.entries[key] = entry
+	c.totalBytes += len(val)
+	fmt.Printf("Cache size: %d KB \n", toKiloBytes(c.totalBytes))
 }
 
 func (c *Cache) Get(key string) ([]byte, bool) {
@@ -64,4 +68,9 @@ func (c *Cache) reap(currentTime time.Time) {
 			delete(c.entries, key)
 		}
 	}
+}
+
+func toKiloBytes(bytes int) int {
+	const KB = 1024
+	return bytes / KB
 }

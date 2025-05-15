@@ -27,11 +27,8 @@ func startREPL(config *config) {
 			fmt.Println("Please write the command that you want to perform")
 			continue
 		}
+
 		commandName := words[0]
-		commandArgument := getCommandArgument(words)
-
-		fmt.Println(commandArgument)
-
 		commands := getCommands()
 		command, ok := commands[commandName]
 		if !ok {
@@ -39,7 +36,8 @@ func startREPL(config *config) {
 			continue
 		}
 
-		err := command.callback(config)
+		commandArgument := getCommandArgument(words)
+		err := command.callback(config, commandArgument)
 		if err != nil {
 			fmt.Println(err)
 		}
