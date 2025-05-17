@@ -130,6 +130,7 @@ func commandCatch(config *config, argument string) error {
 
 	if tryCatch(pokemon.BaseExperience) {
 		fmt.Printf("%s was caught!\n", pokemon.Name)
+		config.pokedex.Add(pokemon)
 	} else {
 		fmt.Printf("%s escaped!\n", pokemon.Name)
 	}

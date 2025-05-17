@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/Zigelzi/go-pokedex/internal/pokeapi"
+	"github.com/Zigelzi/go-pokedex/internal/pokedex"
 )
 
 func main() {
@@ -12,6 +13,7 @@ func main() {
 	pokeClient := pokeapi.NewClient(timeoutDuration, cacheLifetime)
 	config := &config{
 		pokeApiClient: &pokeClient,
+		pokedex:       pokedex.New(),
 	}
 	startREPL(config)
 }

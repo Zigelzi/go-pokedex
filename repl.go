@@ -7,10 +7,12 @@ import (
 	"strings"
 
 	"github.com/Zigelzi/go-pokedex/internal/pokeapi"
+	"github.com/Zigelzi/go-pokedex/internal/pokedex"
 )
 
 type config struct {
 	pokeApiClient   *pokeapi.Client
+	pokedex         *pokedex.Pokedex
 	nextPageURL     *string
 	previousPageURL *string
 }
