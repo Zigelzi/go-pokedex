@@ -32,11 +32,11 @@ the data is fetched from PokeAPI directly
 func (c *Client) fetchData(url string) ([]byte, error) {
 	if cacheEntry, exists := c.cache.Get(url); exists {
 		c.cacheHits++
-		fmt.Printf("Cache hit for %s. Hit rate: %.1f\n", url, c.cacheHitRate())
+		// fmt.Printf("Cache hit for %s. Hit rate: %.1f\n", url, c.cacheHitRate())
 		return cacheEntry, nil
 	}
 	c.cacheMisses++
-	fmt.Printf("Cache miss for %s. Hit rate: %.1f\n", url, c.cacheHitRate())
+	// fmt.Printf("Cache miss for %s. Hit rate: %.1f\n", url, c.cacheHitRate())
 
 	res, err := http.Get(url)
 	if err != nil {
