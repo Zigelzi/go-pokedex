@@ -66,15 +66,15 @@ func commandHelp(config *config, argument string) error {
 }
 
 func commandMapForward(config *config, argument string) error {
-	locationAreaResp, err := config.pokeApiClient.ListLocationAreas(config.nextPageURL)
+	locationAreaList, err := config.pokeApiClient.ListLocationAreas(config.nextPageURL)
 	if err != nil {
 		return err
 	}
 
-	config.nextPageURL = locationAreaResp.Next
-	config.previousPageURL = locationAreaResp.Previous
+	config.nextPageURL = locationAreaList.Next
+	config.previousPageURL = locationAreaList.Previous
 
-	for _, locationArea := range locationAreaResp.Results {
+	for _, locationArea := range locationAreaList.Results {
 		fmt.Println(locationArea.Name)
 	}
 	return nil
@@ -85,15 +85,15 @@ func commandMapBack(config *config, argument string) error {
 		fmt.Println("Can't move back. You are on first page!")
 		return fmt.Errorf("unable to move back, config.PreviousPageURL: %v", config.previousPageURL)
 	}
-	locationAreaResp, err := config.pokeApiClient.ListLocationAreas(config.previousPageURL)
+	locationAreaList, err := config.pokeApiClient.ListLocationAreas(config.previousPageURL)
 	if err != nil {
 		return err
 	}
 
-	config.nextPageURL = locationAreaResp.Next
-	config.previousPageURL = locationAreaResp.Previous
+	config.nextPageURL = locationAreaList.Next
+	config.previousPageURL = locationAreaList.Previous
 
-	for _, locationArea := range locationAreaResp.Results {
+	for _, locationArea := range locationAreaList.Results {
 		fmt.Println(locationArea.Name)
 	}
 	return nil
@@ -103,12 +103,12 @@ func commandExplore(config *config, argument string) error {
 	if argument == "" {
 		return fmt.Errorf("location area name is missing")
 	}
-	locationAreaResp, err := config.pokeApiClient.GetLocationAreaDetails(argument)
+	locationArea, err := config.pokeApiClient.GetLocationArea(argument)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Pokemons in %s:\n", locationAreaResp.Name)
-	for i, pokemonEncounter := range locationAreaResp.PokemonEncounters {
+	fmt.Printf("Pokemons in %s:\n", locationArea.Name)
+	for i, pokemonEncounter := range locationArea.PokemonEncounters {
 		fmt.Printf("%d. %s\n", i+1, pokemonEncounter.Pokemon.Name)
 	}
 

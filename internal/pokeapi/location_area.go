@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func (c *Client) ListLocationAreas(pageURL *string) (ResponseLocationAreaList, error) {
+func (c *Client) ListLocationAreas(pageURL *string) (LocationAreaList, error) {
 	url := baseURL + "/location-area"
 	if pageURL != nil {
 		url = *pageURL
@@ -13,32 +13,32 @@ func (c *Client) ListLocationAreas(pageURL *string) (ResponseLocationAreaList, e
 
 	data, err := c.fetchData(url)
 	if err != nil {
-		return ResponseLocationAreaList{}, err
+		return LocationAreaList{}, err
 	}
 
-	apiLocationAreaResponse := ResponseLocationAreaList{}
-	err = json.Unmarshal(data, &apiLocationAreaResponse)
+	locationAreaList := LocationAreaList{}
+	err = json.Unmarshal(data, &locationAreaList)
 	if err != nil {
-		return ResponseLocationAreaList{}, err
+		return LocationAreaList{}, err
 	}
 
-	return apiLocationAreaResponse, nil
+	return locationAreaList, nil
 }
 
-func (c *Client) GetLocationAreaDetails(locationName string) (ResponseLocationAreaDetails, error) {
+func (c *Client) GetLocationArea(locationName string) (LocationArea, error) {
 	if locationName == "" {
-		return ResponseLocationAreaDetails{}, fmt.Errorf("missing location name")
+		return LocationArea{}, fmt.Errorf("missing location name")
 	}
 	url := baseURL + "/location-area/" + locationName
 	data, err := c.fetchData(url)
 	if err != nil {
-		return ResponseLocationAreaDetails{}, err
+		return LocationArea{}, err
 	}
 
-	var locationAreaDetails ResponseLocationAreaDetails
-	err = json.Unmarshal(data, &locationAreaDetails)
+	var locationArea LocationArea
+	err = json.Unmarshal(data, &locationArea)
 	if err != nil {
-		return ResponseLocationAreaDetails{}, fmt.Errorf("unable to unmarshal LocationAreaDetails: %w", err)
+		return LocationArea{}, fmt.Errorf("unable to unmarshal LocationArea: %w", err)
 	}
-	return locationAreaDetails, nil
+	return locationArea, nil
 }

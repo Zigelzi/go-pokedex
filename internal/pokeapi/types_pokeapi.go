@@ -1,6 +1,6 @@
 package pokeapi
 
-type ResponseLocationAreaList struct {
+type LocationAreaList struct {
 	Count    int            `json:"count"`
 	Next     *string        `json:"next"`
 	Previous *string        `json:"previous"`
@@ -8,12 +8,8 @@ type ResponseLocationAreaList struct {
 }
 
 type LocationArea struct {
-	Name string `json:"name"`
-	URL  string `json:"url"`
-}
-
-type ResponseLocationAreaDetails struct {
 	ID                int                 `json:"id"`
+	URL               string              `json:"url"`
 	Name              string              `json:"name"`
 	GameIndex         int                 `json:"game_index"`
 	PokemonEncounters []PokemonEncounters `json:"pokemon_encounters"`
@@ -27,8 +23,4 @@ type Pokemon struct {
 	Name           string `json:"name"`
 	URL            string `json:"url"`
 	BaseExperience int    `json:"base_experience"`
-}
-
-type ResponsePokemonDetails struct {
-	Pokemon Pokemon
 }
