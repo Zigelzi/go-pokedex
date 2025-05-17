@@ -38,6 +38,11 @@ func getCommands() map[string]cliCommand {
 			description: "Explore the Pokemons in the location area (e.g 'canalave-city-area')",
 			callback:    commandExplore,
 		},
+		"catch": {
+			name:        "catch {pokemon name}",
+			description: "Try to catch pokemon by their name (e.g 'wartortle')",
+			callback:    commandCatch,
+		},
 	}
 }
 
@@ -107,5 +112,19 @@ func commandExplore(config *config, argument string) error {
 		fmt.Printf("%d. %s\n", i+1, pokemonEncounter.Pokemon.Name)
 	}
 
+	return nil
+}
+
+func commandCatch(config *config, argument string) error {
+	if argument == "" {
+		return fmt.Errorf("pokemon name is missing")
+	}
+
+	fmt.Printf("Throwing a Pokeball at %s...\n", argument)
+	pokemon, err := config.pokeApiClient.GetPokemon(argument)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Found pokemon: %s\n", pokemon.Name)
 	return nil
 }

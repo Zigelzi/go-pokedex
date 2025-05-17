@@ -24,6 +24,11 @@ type PokemonEncounters struct {
 }
 
 type Pokemon struct {
-	Name string `json:"name"`
-	URL  string `json:"url"`
+	Name           string `json:"name"`
+	URL            string `json:"url"`
+	BaseExperience int    `json:"base_experience"`
+}
+
+type ResponsePokemonDetails struct {
+	Pokemon Pokemon
 }
