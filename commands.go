@@ -125,6 +125,13 @@ func commandCatch(config *config, argument string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Found pokemon: %s\n", pokemon.Name)
+
+	createTension()
+
+	if tryCatch(pokemon.BaseExperience) {
+		fmt.Printf("%s was caught!\n", pokemon.Name)
+	} else {
+		fmt.Printf("%s escaped!\n", pokemon.Name)
+	}
 	return nil
 }

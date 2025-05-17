@@ -1,7 +1,6 @@
 package pokecache
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
@@ -36,7 +35,7 @@ func (c *Cache) Add(key string, val []byte) {
 	}
 	c.entries[key] = entry
 	c.totalBytes += len(val)
-	fmt.Printf("Cache size: %d KB \n", toKiloBytes(c.totalBytes))
+	// fmt.Printf("Cache size: %d KB \n", toKiloBytes(c.totalBytes))
 }
 
 func (c *Cache) Get(key string) ([]byte, bool) {
