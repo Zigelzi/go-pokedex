@@ -22,3 +22,15 @@ func (p *Pokedex) Add(pokemon pokeapi.Pokemon) {
 	defer p.mu.Unlock()
 	p.Entries[pokemon.Name] = pokemon
 }
+
+// List all Pokemon in the Pokedex that user has caught.
+func (p *Pokedex) List() []pokeapi.Pokemon {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+
+	var pokedexEntries []pokeapi.Pokemon
+	for _, pokemon := range p.Entries {
+		pokedexEntries = append(pokedexEntries, pokemon)
+	}
+	return pokedexEntries
+}

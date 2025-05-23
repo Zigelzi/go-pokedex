@@ -43,6 +43,11 @@ func getCommands() map[string]cliCommand {
 			description: "Try to catch pokemon by their name (e.g 'wartortle')",
 			callback:    commandCatch,
 		},
+		"list": {
+			name:        "list",
+			description: "List all caught Pokemons in Pokedex",
+			callback:    commandList,
+		},
 	}
 }
 
@@ -133,6 +138,20 @@ func commandCatch(config *config, argument string) error {
 		config.pokedex.Add(pokemon)
 	} else {
 		fmt.Printf("%s escaped!\n", pokemon.Name)
+	}
+	return nil
+}
+
+func commandList(config *config, argument string) error {
+	pokedexPokemons := config.pokedex.List()
+	if len(pokedexPokemons) == 0 {
+		fmt.Println("No Pokemons in Pokedex")
+		return nil
+	}
+
+	fmt.Println("Pokemons in Pokedex:")
+	for i, pokemon := range pokedexPokemons {
+		fmt.Printf("%d. %s\n", i+1, pokemon.Name)
 	}
 	return nil
 }
