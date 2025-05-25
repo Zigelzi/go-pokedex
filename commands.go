@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
@@ -47,6 +48,11 @@ func getCommands() map[string]cliCommand {
 			name:        "list",
 			description: "List all caught Pokemons in Pokedex",
 			callback:    commandList,
+		},
+		"inspect": {
+			name:        "inspect {pokemon name}",
+			description: "Inspect the properties of a Pokemon",
+			callback:    commandInspect,
 		},
 	}
 }
@@ -153,5 +159,19 @@ func commandList(config *config, argument string) error {
 	for i, pokemon := range pokedexPokemons {
 		fmt.Printf("%d. %s\n", i+1, pokemon.Name)
 	}
+	return nil
+}
+
+func commandInspect(config *config, argument string) error {
+	if argument == "" {
+		return errors.New("pokemon name is missing")
+	}
+	pokemon, ok := config.pokedex.Entries[argument]
+	if !ok {
+		fmt.Printf("You haven't caught Pokemon: %s\n", argument)
+		return nil
+	}
+	pokemon.Details()
+
 	return nil
 }
