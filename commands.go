@@ -35,7 +35,7 @@ func getCommands() map[string]cliCommand {
 			callback:    commandMapBack,
 		},
 		"explore": {
-			name:        "explore {location area name}",
+			name:        "explore {location name}",
 			description: "Explore the Pokemons in the location area (e.g 'canalave-city-area')",
 			callback:    commandExplore,
 		},
@@ -140,8 +140,9 @@ func commandCatch(config *config, argument string) error {
 	createTension()
 
 	if tryCatch(pokemon.BaseExperience) {
-		fmt.Printf("%s was caught!\n", pokemon.Name)
 		config.pokedex.Add(pokemon)
+		fmt.Printf("%s was caught!\n", pokemon.Name)
+		fmt.Println("You can now inspect it's details by using the 'inspect' command")
 	} else {
 		fmt.Printf("%s escaped!\n", pokemon.Name)
 	}
